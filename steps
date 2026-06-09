@@ -72,6 +72,9 @@ make defconfig
 #configurar o .config para compilar estaticamente editar a config no vim ou nvim também é uma opção
 sed -i 's/# CONFIG_STATIC is not set/CONFIG_STATIC=y/' .config
 
+#senao da erro
+sed -i 's/CONFIG_TC=y/# CONFIG_TC is not set/' .config
+
 #gerar o executável do busybox
 make -j$(nproc) #-------> o executável está em /busybox-$busybox_ver busybox
 
