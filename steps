@@ -1,1 +1,82 @@
+#!/usr/bin/env bash
+
+kernel_ver="6.1.60"
+
+busybox_ver="1.37.0"
+
+
+#ferramentas e bibliotecas que precisam ser instaladas antes de começar
+sudo apt update && sudo apt install -y \
+    build-essential \
+    libncurses-dev \
+    bison \
+    flex \
+    libssl-dev \
+    libelf-dev \
+    bc \
+    cpio \
+    wget \
+    xorriso \
+    grub-pc-bin \
+    grub-efi-amd64-bin \
+    grub-common \
+    mtools \
+    squashfs-tools \
+    qemu-system-x86
+
+#instalar o kernel (comprimido)
+wget https://www.kernel.org/pub/linux/kernel/v6.x/linux-$kernel_ver.tar.xz
+
+#extrair o kernel (descomprimir)
+tar -xf linux-$kernel_ver.tar.xz
+
+
+#instalar o busybox (comprimido)
+wget  https://busybox.net/downloads/busybox-$busybox_ver.tar.bz2
+
+#extrair o busybox (descomprimir)
+tar -xf busybox-$busybox_ver.tar.bz2
+
+
+
+#====================================================================================================================================================================================================================
+#compilação do kernel do linux
+
+
+
+cd linux-$kernel_version
+
+#gerar o arquivo de configuração '.config'
+make defconfig
+
+#comando para configurar de acordo com o hardware local
+make localmodconfig
+
+#menu de configuração do kconfig
+make menuconfig #olhar linux/noturno/CICLOIII/mapa_de_decisoes.md para detalhes de configurações
+
+#gerar o executável do kernel do linux
+make -j$(nproc) #------>  o executável se encontra em /arch/x86/boot bzImage
+
+
+#====================================================================================================================================================================================================================
+#compilação do busybox
+
+
+
+cd busybox-$busybox_ver
+
+#gerar o .config
+make defconfig
+
+#configurar o .config para compilar estaticamente editar a config no vim ou nvim também é uma opção
+sed -i 's/# CONFIG_STATIC is not set/CONFIG_STATIC=y/' .config
+
+#gerar o executável do busybox
+make -j$(nproc) #-------> o executável está em /busybox-$busybox_ver busybox
+
+#====================================================================================================================================================================================================================
+#Criação do rootfs
+
+
 
